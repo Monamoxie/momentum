@@ -1,0 +1,99 @@
+networks:
+    momentum-network:
+
+services:
+    nginx:
+        image: nginx:stable-alpine
+        container_name: momentum-nginx
+        ports:
+            - ${NGINX_PORT}:80
+        links:
+            - "php"
+        volumes:
+            - ./backend:/var/www/html
+            - ./.nginx/conf.d:/etc/nginx/conf.d:rw
+        env_file:
+            - .env
+        depends_on:
+            - php
+            - mysql
+        networks:
+            - momentum-network
+
+    php:
+        build:
+            context: .
+            dockerfile: ./.docker/Dockerfile.php
+        container_name: momentum-php
+        volumes:
+            - ./backend:/var/www/html
+        env_file:
+            - .env
+        ports:
+            - ${PHP_PORT}:9000
+        networks:
+            - momentum-network
+
+    mysql:
+        image: mysql:latest
+        container_name: momentum-mysql
+        restart: unless-stopped
+        tty: true
+        ports:
+            - ${DB_HOST_PORT}:3306
+        volumes:
+            - mysql_data:/var/lib/mysql
+        env_file:
+            - .env
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+        networks:
+            - momentum-network
+
+    mysql_test:
+        image: mysql:latest
+        container_name: momentum-mysql_test
+        restart: unless-stopped
+        tty: true
+        env_file:
+            - .env.testing
+        ports:
+            - ${TEST_DB_HOST_PORT}:3306
+        environment:
+            MYSQL_DATABASE: ${TEST_DB_DATABASE}
+            MYSQL_PASSWORD: ${TEST_DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${TEST_DB_ROOT_PASSWORD}
+            MYSQL_USER: ${TEST_DB_USERNAME}
+        networks:
+            - momentum-network
+
+    redis:
+        image: redis:alpine
+        container_name: momentum-redis
+        command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+        ports:
+            - ${REDIS_PORT}:6379
+        networks:
+            - momentum-network
+        env_file:
+            - .env
+        volumes:
+            - redis_data:/data
+
+    node:
+        build:
+            context: .
+            dockerfile: ./.docker/Dockerfile.node
+        container_name: momentum-node
+        volumes:
+            - ./frontend:/var/www/html
+        ports:
+            - 5175:5173
+        networks:
+            - momentum-network
+volumes:
+    redis_data:
+    mysql_data:

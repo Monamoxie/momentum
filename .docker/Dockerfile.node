@@ -1,0 +1,10 @@
+FROM node:22-alpine
+
+WORKDIR /var/www/html
+
+COPY ./frontend /var/www/html
+COPY ./node-entrypoint.sh /var/www/html/node-entrypoint.sh
+
+RUN chmod +x /var/www/html/node-entrypoint.sh
+
+ENTRYPOINT [ "/bin/sh", "/var/www/html/node-entrypoint.sh"]
