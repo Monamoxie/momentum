@@ -15,15 +15,15 @@
             </button>
             <template v-if="typeof serverResponse == 'object'">
                 <div v-for="(errorGroups, key) of serverResponse" :key="key">
-                    <ul>
-                        <li
+                    <h5 v-if="typeof errorGroups == 'string'"></h5>
+                    <template v-else>
+                        <p
                             v-for="(listOfErrors, index) of errorGroups"
                             :key="index"
                         >
-                            <i class="fa fa-times-circle"></i>
-                            {{ listOfErrors }}
-                        </li>
-                    </ul>
+                            {{ listOfErrors[0] }}
+                        </p>
+                    </template>
                 </div>
             </template>
             <template v-else>
