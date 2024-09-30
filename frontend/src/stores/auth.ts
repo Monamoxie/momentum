@@ -1,12 +1,7 @@
-// stores/auth.ts
 import { defineStore } from "pinia";
 import axios from "@/axios";
 import { type AxiosPromise } from "axios";
-
-type Signin = {
-  email: string;
-  password: string;
-};
+import type { ApiResponse, SigninPayload } from "@/types/api";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -22,7 +17,7 @@ export const useAuthStore = defineStore("auth", {
       // this.token = response.data.token;
       // localStorage.setItem("token", this.token);
     },
-    signin(credentials: Signin): AxiosPromise<ApiResponse> {
+    signin(credentials: SigninPayload): AxiosPromise<ApiResponse> {
       return axios
         .get("http://localhost:81/sanctum/csrf-cookie")
         .then((response) => {
