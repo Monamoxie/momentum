@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
@@ -11,7 +12,7 @@ class UserService
     {
         $user = new User;
         $user->email = $email;
-        $user->password = $password;
+        $user->password = Hash::make($password);
 
         if ($user->save()) {
             return $user;
@@ -20,10 +21,24 @@ class UserService
         return null;
     }
 
-    public function login(string $email, string $password)
+    public function getUserByEmail(string $email): ?User
     {
-        return Auth::attempt($email, $password);
+        return User::where("email", $email)->first();
     }
 
-    public function createToken(string $email, string $password) {}
+    public function authenticateUser(string $email, string $password): User|null|bool
+    {
+        $authenticate = Auth::attempt(['email' => $email, 'password' => $password]);
+        if ($authenticate) {
+            return $this->getUserByEmail($email);
+        }
+
+        return false;
+    }
+
+    public function createToken(User $user)
+    {
+        $token = $user->createToken($user->email)->plainTextToken;
+        return $token;
+    }
 }
