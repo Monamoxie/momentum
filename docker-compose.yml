@@ -91,7 +91,7 @@ services:
         volumes:
             - ./frontend:/var/www/html
         ports:
-            - 5175:5173
+            - 5173:5173
         networks:
             - momentum-network
 volumes:
