@@ -5,6 +5,6 @@ namespace App\Enums;
 enum TaskPriorityEnum: string
 {
     case HIGH = 'high';
-    case MEDIUM = 'MEDIUM';
+    case MEDIUM = 'medium';
     case LOW = 'low';
 }
