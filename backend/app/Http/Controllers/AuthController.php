@@ -23,7 +23,9 @@ class AuthController extends Controller
             ], 500);
         }
 
-        return new UserResource($user);
+        return $this->successResponse(message: "Login Successful", data: [
+            "user" => new UserResource($user)
+        ]);
     }
 
     public function signin(SigninRequest $request, UserService $userService)

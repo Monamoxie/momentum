@@ -17,7 +17,7 @@ class TaskService
     {
         $tasks = Task::query()->whereNull('parent_id')->with('children');
         if ($user instanceof User) {
-            return $tasks->where('user_id', $user->id);
+            $tasks = $tasks->where('user_id', $user->id);
         }
 
         $paginationLimit = !is_null($paginate) ? $paginate : 200;
