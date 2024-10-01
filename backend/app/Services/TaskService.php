@@ -44,6 +44,26 @@ class TaskService
         }
     }
 
+    public function updateTask(...$payload): Task|string
+    {
+        try {
+            $task = Task::find($payload['id']);
+
+            $task->name = $payload['name'];
+            $task->user_id = $payload['user_id'];
+            $task->label = $payload['label'];
+            $task->priority = $payload['priority'];
+            $task->note = $payload['note'];
+            $task->status = $payload['status'];
+
+            $task->save();
+
+            return $task;
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+    }
+
     public function getStatuses(): array
     {
         $statuses = [];

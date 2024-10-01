@@ -9,9 +9,11 @@
           v-if="errorResponse.length > 0"
           :server-response="errorResponse"
         ></ErrorDisplayBoard>
-
+        <div class="alert alert-success" v-if="successResponse">
+          {{ successResponse }}
+        </div>
         <div class="d-flex flex-row-reverse">
-          <button class="btn btn-primary theme1" @click="showModal = true">
+          <button class="btn btn-primary theme1" @click="showCreateModal">
             Create New
           </button>
         </div>
@@ -22,7 +24,7 @@
           :rows="pageRows"
           :loading="loadingRecords"
           dataKey="id"
-          :globalFilterFields="['name', 'code']"
+          :globalFilterFields="['name', 'priority', 'label', 'status']"
         >
           <template #header>
             <div class="row">
@@ -45,19 +47,37 @@
           </template>
 
           <Column field="name" header="Name" sortable></Column>
-          <Column field="label" header="Label" sortable></Column>
           <Column field="priority" header="Priority" sortable></Column>
           <Column field="status" header="Status" sortable></Column>
+          <Column field="label" header="Label" sortable></Column>
+          <Column header="View">
+            <template #body="row">
+              <button
+                class="btn btn-primary btn-sm"
+                @click="showDetailModal(row.data)"
+              >
+                View
+              </button>
+            </template>
+          </Column>
           <Column header="Edit">
             <template #body="row">
-              <button class="btn btn-primary" @click="showEditModal(row.data)">
+              <button
+                class="btn btn-sm btn-primary theme1"
+                @click="showEditModal(row.data)"
+              >
                 Edit
               </button>
             </template>
           </Column>
           <Column header="Delete">
             <template #body="row">
-              <button class="btn btn-danger">Delete</button>
+              <button
+                class="btn btn-danger btn-sm"
+                @click="deleteTask(row.data.id)"
+              >
+                Delete
+              </button>
             </template>
           </Column>
         </DataTable>
@@ -67,15 +87,23 @@
       :task="task"
       :modal-id="name"
       :action-type="actionType"
-      :country="country"
       :success-message="modalSuccessMessage"
       :error-message="modalErrorMessage"
       :processing="modalProcessing"
       :task-statuses="taskStatuses"
       :task-priorities="taskPriorties"
       @create-task="createTask"
-      @modal-closed="showModal = false"
-      v-if="showModal"
+      @update-task="updateTask"
+      @modal-closed="showFormModal = false"
+      v-if="showFormModal"
+    />
+
+    <TaskViewModal
+      :task="task"
+      :modal-id="name"
+      :action-type="actionType"
+      @modal-closed="showViewModal = false"
+      v-if="showViewModal"
     />
   </div>
 </template>
@@ -90,8 +118,12 @@ import type {
   GetTaskResponse,
   CreateTaskPayload,
   TaskRowData,
+  UpdateTaskPayload,
+  GetSingleTaskResponse,
+  Task,
 } from "@/types/api";
 import TaskFormModal from "@/components/TaskFormModal.vue";
+import TaskViewModal from "@/components/TaskViewModal.vue";
 import { FilterMatchMode } from "@primevue/core/api";
 
 export default defineComponent({
@@ -106,11 +138,13 @@ export default defineComponent({
       deleting: false,
       deleteErr: null,
       deleted: false,
-      tasks: [] as Array<Object>,
+      tasks: [] as Array<Task>,
       task: {},
       errorResponse: [] as string[] | string,
+      successResponse: "",
       actionType: "create" as string,
-      showModal: false,
+      showFormModal: false,
+      showViewModal: false,
       modalSuccessMessage: "" as string,
       modalErrorMessage: "" as string,
       modalProcessing: false as boolean,
@@ -128,9 +162,10 @@ export default defineComponent({
   components: {
     ErrorDisplayBoard,
     TaskFormModal,
+    TaskViewModal,
   },
   methods: {
-    ...mapActions(useDashboardStore, ["get", "post"]),
+    ...mapActions(useDashboardStore, ["get", "post", "update", "delete"]),
     getTasks() {
       this.get()
         .then((response: AxiosResponse<ApiResponse>) => {
@@ -151,10 +186,13 @@ export default defineComponent({
         });
     },
     createTask(payload: CreateTaskPayload) {
+      this.modalSuccessMessage = "";
       this.post(payload)
-        .then(() => {
-          this.tasks.push(payload);
-          this.showModal = false;
+        .then((response: AxiosResponse<ApiResponse>) => {
+          const responseData: GetSingleTaskResponse = response.data.data;
+
+          this.tasks.push(responseData.task);
+          this.modalSuccessMessage = "New task has been added!";
         })
         .catch((error: AxiosError<ApiResponse>) => {
           this.errorResponse = error.response?.data?.message || "";
@@ -163,9 +201,18 @@ export default defineComponent({
           this.loadingRecords = false;
         });
     },
+    showCreateModal() {
+      this.actionType = "create";
+      this.showFormModal = true;
+    },
     showEditModal(rowData: TaskRowData) {
+      this.actionType = "edit";
       this.task = rowData;
-      this.showModal = true;
+      this.showFormModal = true;
+    },
+    showDetailModal(rowData: TaskRowData) {
+      this.task = rowData;
+      this.showViewModal = true;
     },
     clearFilter() {
       this.initFilters();
@@ -174,6 +221,38 @@ export default defineComponent({
       this.filters = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
       };
+    },
+    updateTask(payload: UpdateTaskPayload) {
+      this.modalSuccessMessage = "";
+      this.update(payload)
+        .then(() => {
+          this.tasks.push(payload);
+          this.modalSuccessMessage = "Task has been successfully updated!";
+        })
+        .catch((error: AxiosError<ApiResponse>) => {
+          this.errorResponse = error.response?.data?.message || "";
+        })
+        .finally(() => {
+          this.loadingRecords = false;
+        });
+    },
+    deleteTask(id: number) {
+      const conf = confirm("Are you sure you wish to delete this entry?");
+      this.delete(id)
+        .then(() => {
+          this.successResponse = "Task has been successfully deleted!";
+          this.tasks.filter((task, index) => {
+            if (task.id == id) {
+              return this.tasks.splice(index, 1);
+            }
+          });
+        })
+        .catch((error: AxiosError<ApiResponse>) => {
+          this.errorResponse = error.response?.data?.message || "";
+        })
+        .finally(() => {
+          this.loadingRecords = false;
+        });
     },
   },
   mounted() {

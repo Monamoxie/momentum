@@ -193,6 +193,7 @@ import { defineComponent, type PropType } from "vue";
 import * as yup from "yup";
 import ErrorDisplayBoard from "@/components/ErrorDisplayBoard.vue";
 import { Modal } from "bootstrap";
+import type { CreateTaskPayload, UpdateTaskPayload } from "@/types/api";
 
 export default defineComponent({
   name: "TaskFormModal",
@@ -207,19 +208,7 @@ export default defineComponent({
       errorResponse: [] as string[] | string,
     };
   },
-  mounted() {
-    const modalElem = document.getElementById(this.modalId) as HTMLElement;
-    const modal = new Modal(modalElem);
-
-    modal.show();
-
-    modalElem.addEventListener("hidden.bs.modal", (event) => {
-      modal.hide();
-
-      this.$emit("modalClosed");
-    });
-  },
-  emits: ["createTask", "updateAcademicSession", "modalClosed"],
+  emits: ["createTask", "updateTask", "modalClosed"],
   props: {
     task: {
       type: Object || {},
@@ -247,6 +236,18 @@ export default defineComponent({
       type: Boolean,
     },
   },
+  mounted() {
+    const modalElem = document.getElementById(this.modalId) as HTMLElement;
+    const modal = new Modal(modalElem);
+
+    modal.show();
+
+    modalElem.addEventListener("hidden.bs.modal", (event) => {
+      modal.hide();
+
+      this.$emit("modalClosed");
+    });
+  },
   computed: {
     validationSchema() {
       return yup.object({
@@ -265,13 +266,34 @@ export default defineComponent({
   },
   methods: {
     emitData() {
-      this.$emit("createTask", {
+      if (this.actionType == "create") {
+        return this.emitCreateTask();
+      }
+
+      return this.emitUpdateTask();
+    },
+    emitCreateTask() {
+      const payload: CreateTaskPayload = {
         name: this.name,
         label: this.label,
         priority: this.priority,
         note: this.note,
         status: this.status,
-      });
+      };
+
+      this.$emit("createTask", payload);
+    },
+    emitUpdateTask() {
+      const payload: UpdateTaskPayload = {
+        name: this.name,
+        label: this.label,
+        priority: this.priority,
+        note: this.note,
+        status: this.status,
+        id: this.task?.id,
+      };
+
+      this.$emit("updateTask", payload);
     },
     capitalizeFirstLetter(text: string) {
       return text.charAt(0).toUpperCase() + text.slice(1);

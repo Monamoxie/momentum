@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskCollection;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
@@ -13,9 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request, TaskService $taskService)
     {
         $tasks = $taskService->getTasks($request->user);
@@ -39,41 +38,38 @@ class TaskController extends Controller
         );
 
         if ($task instanceof Task) {
-            return $this->successResponse(message: "Task created successfully");
+            return $this->successResponse(message: "Task created successfully", data: [
+                'task' => new TaskResource($task)
+            ]);
         }
 
         return $this->errorResponse(message: $task);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(UpdateTaskRequest $request, Task $task, TaskService $taskService)
     {
-        //
+        $task = $taskService->updateTask(
+            id: $task->id,
+            name: $request->name,
+            user_id: auth()->user()->id,
+            label: $request->label,
+            priority: $request->priority,
+            note: $request->note,
+            status: $request->status
+        );
+
+        if ($task instanceof Task) {
+            return $this->successResponse(message: "Task updated successfully", data: [
+                'task' => new TaskResource($task)
+            ]);
+        }
+
+        return $this->errorResponse(message: $task);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Request $request, Task $task)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $task->delete();
+        return $this->successResponse(message: "Task deleted successfully");
     }
 }
