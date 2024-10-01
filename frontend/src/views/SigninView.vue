@@ -2,14 +2,13 @@
   <div class="home-wrapper container">
     <div class="row">
       <div class="col-md-6">
-        <h1>
-          Be part <strong>of</strong> something new
-          <span class="dot">.</span>
-        </h1>
+        <h1>Gain <strong>Acceleration</strong></h1>
         <div
-          class="subscriba-form-wrapper subcriba-bx-shadow1"
+          class="momentum-form-wrapper momentum-bx-shadow1"
           v-if="!subscribeSuccess"
         >
+          <h2>WELCOME BACK</h2>
+          <p>Continue with speed</p>
           <ErrorDisplayBoard
             v-if="errorResponse.length > 0"
             :server-response="errorResponse"
@@ -66,11 +65,11 @@ import type { AxiosResponse } from "axios";
 import type { ApiResponse, SignInSuccess } from "@/types/api";
 
 export default defineComponent({
-  name: "Home",
+  name: "SigninView",
   data() {
     return {
-      email: "test@test.com",
-      password: "123456",
+      email: "",
+      password: "",
       processing: false,
       errorResponse: [] as string[] | string,
       subscribeSuccess: false,
