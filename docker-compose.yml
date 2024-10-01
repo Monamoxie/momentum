@@ -12,6 +12,8 @@ services:
         volumes:
             - ./backend:/var/www/html
             - ./.nginx/conf.d:/etc/nginx/conf.d:rw
+            - .env:/var/www/html/.env
+            - .env.testing:/var/www/html/.env.testing
         env_file:
             - .env
         depends_on:
@@ -27,6 +29,8 @@ services:
         container_name: momentum-php
         volumes:
             - ./backend:/var/www/html
+            - .env:/var/www/html/.env
+            - .env.testing:/var/www/html/.env.testing
         env_file:
             - .env
         ports:
@@ -43,6 +47,8 @@ services:
             - ${DB_HOST_PORT}:3306
         volumes:
             - mysql_data:/var/lib/mysql
+            - .env:/var/www/html/.env
+            - .env.testing:/var/www/html/.env.testing
         env_file:
             - .env
         environment:
@@ -58,8 +64,9 @@ services:
         container_name: momentum-mysql_test
         restart: unless-stopped
         tty: true
-        env_file:
-            - .env.testing
+        volumes: 
+            - .env:/var/www/html/.env
+            - .env.testing:/var/www/html/.env.testing
         ports:
             - ${TEST_DB_HOST_PORT}:3306
         environment:

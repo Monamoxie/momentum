@@ -5,34 +5,53 @@ import type { ApiResponse, SigninPayload } from "@/types/api";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    token: localStorage.getItem("token") || "",
+    token: sessionStorage.getItem("token") || "",
   }),
   actions: {
-    async signup(credentials: {
+    signup(credentials: {
       email: string;
       password: string;
       password_confirmation: string;
     }) {
-      const response = await axios.post("/signup", credentials);
-      // this.token = response.data.token;
-      // localStorage.setItem("token", this.token);
+      return axios.post("/signup", credentials, {
+        withCredentials: true,
+      });
     },
     signin(credentials: SigninPayload): AxiosPromise<ApiResponse> {
+      return axios.post("/signin", credentials, {
+        withCredentials: true,
+      });
+    },
+    fetchCsrfToken() {
       return axios
-        .get("http://localhost:81/sanctum/csrf-cookie")
+        .get("http://localhost:81/sanctum/csrf-cookie", {
+          withCredentials: true,
+        })
         .then((response) => {
-          return axios.post("/signin", credentials, {
-            withCredentials: true,
-          });
+          console.log("JUST CAME BACKL", response);
         });
     },
     persistToken(token: string) {
       this.token = token;
-      localStorage.setItem("token", token);
+      sessionStorage.setItem("token", token);
     },
     signout() {
       this.token = "";
+      sessionStorage.removeItem("token");
       localStorage.removeItem("token");
+    },
+    getToken(): string {
+      return this.token;
+    },
+    isCsrfTokenSet(): Boolean {
+      const csrfToken = this.getCookie("XSRF-TOKEN");
+      console.log("Ile", csrfToken, !!csrfToken);
+      return !!csrfToken;
+    },
+    getCookie(name: string) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(";").shift();
     },
   },
 });

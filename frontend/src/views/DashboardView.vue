@@ -202,15 +202,18 @@ export default defineComponent({
         });
     },
     showCreateModal() {
+      this.modalSuccessMessage = "";
       this.actionType = "create";
       this.showFormModal = true;
     },
     showEditModal(rowData: TaskRowData) {
+      this.modalSuccessMessage = "";
       this.actionType = "edit";
       this.task = rowData;
       this.showFormModal = true;
     },
     showDetailModal(rowData: TaskRowData) {
+      this.modalSuccessMessage = "";
       this.task = rowData;
       this.showViewModal = true;
     },

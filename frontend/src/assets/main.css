@@ -34,10 +34,12 @@ body {
   overflow-x: hidden;
 }
 
-.subscriba-form-wrapper {
+.momentum-form-wrapper {
   padding: 40px 35px;
-  border-radius: 22px;
+  border-radius: 22px; 
 }
+
+ 
 
 select {
   min-width: 100%;
@@ -54,9 +56,12 @@ span.btn {
 
 .menu-btn a {
   color: #fff;
+  margin-right: 10px;
 }
-
-.subcriba-api-key-wrapper .form-container {
+.form-group {
+  margin-bottom: 10px;
+} 
+.momentum-api-key-wrapper .form-container {
   max-width: 600px;
   margin: 100px auto;
   padding: 60px 50px;
@@ -64,7 +69,7 @@ span.btn {
   border: none;
 }
 
-.subcriba-bx-shadow1 {
+.momentum-bx-shadow1 {
   -moz-box-shadow: -10px -10px 30px 4px rgba(0, 0, 0, 0.1),
     10px 10px 30px 4px rgba(45, 78, 255, 0.15);
   -webkit-box-shadow: -10px -10px 30px 4px rgba(0, 0, 0, 0.1),
@@ -194,20 +199,21 @@ span.btn {
 
 .side-hero img {
   margin-top: 40px;
+  max-height: 700px;
+  max-width: 100%;
 }
 
 .logo-container {
-  line-height: 0;
-  height: 32px;
+  line-height: 0; 
 }
 
-.logo-container {
-  margin: 16px 16px 16px 0;
-}
+ 
 
 .header-content {
   zoom: 1;
   position: relative;
+  padding: 10px 15px;;
+  margin-bottom: 150px;
 }
 
 .header-content .logo-container,
@@ -217,5 +223,16 @@ span.btn {
 
 .header-content .nav-menu {
   text-align: right;
-  margin-top: 12px;
+  padding-top: 25px; 
+}
+@media(max-width: 599px) {
+  .header-content  .nav-menu {
+    display: block !important;
+    width: 100%; 
+  }
+}
+
+.navbar-nav a {
+  font-size: 24px;
+  font-weight: 600;
 }
