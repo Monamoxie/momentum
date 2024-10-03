@@ -14,8 +14,6 @@ services:
             - ./.nginx/conf.d:/etc/nginx/conf.d:rw
             - .env:/var/www/html/.env
             - .env.testing:/var/www/html/.env.testing
-        env_file:
-            - .env
         depends_on:
             - php
             - mysql
@@ -31,8 +29,6 @@ services:
             - ./backend:/var/www/html
             - .env:/var/www/html/.env
             - .env.testing:/var/www/html/.env.testing
-        env_file:
-            - .env
         ports:
             - ${PHP_PORT}:9000
         networks:
@@ -49,8 +45,6 @@ services:
             - mysql_data:/var/lib/mysql
             - .env:/var/www/html/.env
             - .env.testing:/var/www/html/.env.testing
-        env_file:
-            - .env
         environment:
             MYSQL_DATABASE: ${DB_DATABASE}
             MYSQL_PASSWORD: ${DB_PASSWORD}
@@ -74,6 +68,7 @@ services:
             MYSQL_PASSWORD: ${TEST_DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${TEST_DB_ROOT_PASSWORD}
             MYSQL_USER: ${TEST_DB_USERNAME}
+            APP_ENV: "testing"
         networks:
             - momentum-network
 
@@ -85,8 +80,6 @@ services:
             - ${REDIS_PORT}:6379
         networks:
             - momentum-network
-        env_file:
-            - .env
         volumes:
             - redis_data:/data
 
