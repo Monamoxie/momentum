@@ -54,7 +54,7 @@
             <template #body="row">
               <button
                 class="btn btn-primary btn-sm"
-                @click="showDetailModal(row.data)"
+                @click="viewModal(row.data)"
               >
                 View
               </button>
@@ -92,6 +92,7 @@
       :processing="modalProcessing"
       :task-statuses="taskStatuses"
       :task-priorities="taskPriorties"
+      :for-subtype="forSubType"
       @create-task="createTask"
       @update-task="updateTask"
       @modal-closed="showFormModal = false"
@@ -102,13 +103,18 @@
       :task="task"
       :modal-id="name"
       :action-type="actionType"
+      :loading-task-detail="loadingTaskDetail"
+      @create-sub-task="showCreateSubTaskModal"
+      @view-sub-task="showViewSubTask"
+      @edit-sub-task="showEditSubTask"
+      @delete-sub-task="showDeleteSubTask"
       @modal-closed="showViewModal = false"
       v-if="showViewModal"
     />
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 import ErrorDisplayBoard from "@/components/ErrorDisplayBoard.vue";
 import { useDashboardStore } from "../stores/dashboard";
 import { mapActions } from "pinia";
@@ -139,10 +145,11 @@ export default defineComponent({
       deleteErr: null,
       deleted: false,
       tasks: [] as Array<Task>,
-      task: {},
+      task: {} as Task | null,
       errorResponse: [] as string[] | string,
       successResponse: "",
       actionType: "create" as string,
+      forSubType: false,
       showFormModal: false,
       showViewModal: false,
       modalSuccessMessage: "" as string,
@@ -157,6 +164,14 @@ export default defineComponent({
       filters: {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
       },
+
+      subTaskActionType: "create" as string,
+      showSubTaskFormModal: false,
+      subTaskModalErrorMessage: "" as string,
+      subTaskModalSuccessMessage: "" as string,
+      subTaskModalProcessing: false as boolean,
+
+      loadingTaskDetail: false,
     };
   },
   components: {
@@ -165,7 +180,13 @@ export default defineComponent({
     TaskViewModal,
   },
   methods: {
-    ...mapActions(useDashboardStore, ["get", "post", "update", "delete"]),
+    ...mapActions(useDashboardStore, [
+      "get",
+      "show",
+      "post",
+      "update",
+      "delete",
+    ]),
     getTasks() {
       this.get()
         .then((response: AxiosResponse<ApiResponse>) => {
@@ -212,7 +233,8 @@ export default defineComponent({
       this.task = rowData;
       this.showFormModal = true;
     },
-    showDetailModal(rowData: TaskRowData) {
+    viewModal(rowData: TaskRowData) {
+      this.loadingTaskDetail = false;
       this.modalSuccessMessage = "";
       this.task = rowData;
       this.showViewModal = true;
@@ -256,6 +278,31 @@ export default defineComponent({
         .finally(() => {
           this.loadingRecords = false;
         });
+    },
+    initSubType() {
+      [this.showViewModal, this.showFormModal, this.forSubType] = [
+        false,
+        true,
+        true,
+      ];
+    },
+    showCreateSubTaskModal(payload: Task) {
+      this.initSubType();
+    },
+    showEditSubTask(payload: Task) {
+      this.initSubType();
+
+      this.actionType = "edit";
+      this.task = payload;
+    },
+    showViewSubTask(payload: Task) {
+      this.modalSuccessMessage = "";
+      this.task = payload;
+      this.showViewModal = true;
+    },
+
+    showDeleteSubTask(payload: Task) {
+      this.deleteTask(payload.id);
     },
   },
   mounted() {

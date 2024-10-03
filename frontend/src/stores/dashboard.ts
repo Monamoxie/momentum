@@ -9,11 +9,19 @@ import type {
 
 export const useDashboardStore = defineStore("dashboard", {
   state: () => ({
-    token: localStorage.getItem("token") || "",
+    token: sessionStorage.getItem("token") || "",
   }),
   actions: {
     get(): AxiosPromise<ApiResponse> {
       return axios.get("/tasks", {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+        withCredentials: true,
+      });
+    },
+    show(id: number): AxiosPromise<ApiResponse> {
+      return axios.get("/tasks/" + id, {
         headers: {
           Authorization: `Bearer ${this.token}`,
         },

@@ -13,12 +13,9 @@ use Illuminate\Support\Facades\Hash;
 
 class TaskService
 {
-    public function getTasks(?User $user, ?int $paginate = null): LengthAwarePaginator
+    public function getTasks(User $user, ?int $paginate = null): LengthAwarePaginator
     {
-        $tasks = Task::query()->whereNull('parent_id')->with('children');
-        if ($user instanceof User) {
-            $tasks = $tasks->where('user_id', $user->id);
-        }
+        $tasks = Task::query()->whereNull('parent_id')->where('user_id', $user->id)->with('children');
 
         $paginationLimit = !is_null($paginate) ? $paginate : 200;
 
@@ -29,6 +26,11 @@ class TaskService
     {
         try {
             $task = new Task;
+
+            if (array_key_exists("parent_id", $payload)) {
+                $task->parent_id = $payload["parent_id"];
+            }
+
             $task->name = $payload['name'];
             $task->user_id = $payload['user_id'];
             $task->label = $payload['label'];

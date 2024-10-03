@@ -84,9 +84,9 @@ export default defineComponent({
   name: "Home",
   data() {
     return {
-      email: "james@dan.com",
-      password: "James1010M?",
-      passwordConfirmation: "James1010M?",
+      email: "",
+      password: "",
+      passwordConfirmation: "",
       processing: false,
       errorResponse: [] as string[] | string,
       successResponse: "" as string,

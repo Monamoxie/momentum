@@ -27,19 +27,6 @@
               :validation-schema="validationSchema"
               as="div"
             >
-              <template v-if="forSubtype">
-                <h2><strong>PARENT TASK</strong></h2>
-                <div class="form-group row">
-                  <h6 class="col-sm-3 col-form-label">Name</h6>
-                  <div class="col-sm-9">
-                    <div class="d-flex flex-column">{{ task?.name }}</div>
-                  </div>
-                </div>
-                <br />
-                <br />
-                <h2><strong>SUB TASK</strong></h2>
-              </template>
-
               <form @submit="handleSubmit($event, emitData)">
                 <div class="form-group row">
                   <label for="name" class="col-sm-3 col-form-label"
@@ -209,15 +196,17 @@ import { Modal } from "bootstrap";
 import type { CreateTaskPayload, Task, UpdateTaskPayload } from "@/types/api";
 
 export default defineComponent({
-  name: "TaskFormModal",
+  name: "SubTaskFormModal",
   components: { ErrorDisplayBoard },
   data() {
     return {
-      name: this.findValue("name"),
-      label: this.findValue("label"),
-      priority: this.findValue("priority") || "low",
-      status: this.findValue("status") || "pending",
-      note: this.findValue("note") || "",
+      parent_id: "",
+      parent_name: "",
+      name: this.task?.name || "",
+      label: this.task?.label || "",
+      priority: this.task?.priority || "low",
+      status: this.task?.status || "pending",
+      note: this.task?.note || "",
       errorResponse: [] as string[] | string,
     };
   },
@@ -249,10 +238,6 @@ export default defineComponent({
     processing: {
       type: Boolean,
     },
-    forSubtype: {
-      type: Boolean,
-      default: false,
-    },
   },
   mounted() {
     const modalElem = document.getElementById(this.modalId) as HTMLElement;
@@ -265,6 +250,8 @@ export default defineComponent({
 
       this.$emit("modalClosed");
     });
+
+    console.log("Moounting sub taks");
   },
   computed: {
     validationSchema() {
@@ -279,11 +266,7 @@ export default defineComponent({
       return "modal";
     },
     title(): string {
-      if (this.actionType == "create") {
-        return this.forSubtype ? "ADD SUB TASK" : "ADD TASK";
-      }
-
-      return this.forSubtype ? "EDIT SUB TASK" : "EDIT SUB TASK";
+      return this.actionType == "create" ? "ADD SUB TASK" : "EDIT SUB TASK";
     },
   },
   methods: {
@@ -303,10 +286,6 @@ export default defineComponent({
         status: this.status,
       };
 
-      if (this.forSubtype) {
-        payload["parent_id"] = this.task?.id;
-      }
-
       this.$emit("createTask", payload);
     },
     emitUpdateTask() {
@@ -323,13 +302,6 @@ export default defineComponent({
     },
     capitalizeFirstLetter(text: string) {
       return text.charAt(0).toUpperCase() + text.slice(1);
-    },
-    findValue(key: keyof Task): string {
-      if (this.forSubtype && this.actionType == "create") {
-        return "";
-      }
-
-      return this.task?.[key] || "";
     },
   },
 });

@@ -23,13 +23,9 @@ export const useAuthStore = defineStore("auth", {
       });
     },
     fetchCsrfToken() {
-      return axios
-        .get("http://localhost:81/sanctum/csrf-cookie", {
-          withCredentials: true,
-        })
-        .then((response) => {
-          console.log("JUST CAME BACKL", response);
-        });
+      return axios.get("http://localhost:81/sanctum/csrf-cookie", {
+        withCredentials: true,
+      });
     },
     persistToken(token: string) {
       this.token = token;
@@ -45,7 +41,6 @@ export const useAuthStore = defineStore("auth", {
     },
     isCsrfTokenSet(): Boolean {
       const csrfToken = this.getCookie("XSRF-TOKEN");
-      console.log("Ile", csrfToken, !!csrfToken);
       return !!csrfToken;
     },
     getCookie(name: string) {

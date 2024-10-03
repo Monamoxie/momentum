@@ -22,12 +22,13 @@ export interface GetTaskResponse {
 }
 
 export interface Task {
-  id: integer;
+  id?: integer;
   label: string;
   name: string;
   priority: string;
   status: string;
   note?: string;
+  children?: Array<Task>;
 }
 
 export interface GetSingleTaskResponse {
@@ -38,10 +39,12 @@ export interface GetSingleTaskResponse {
     priority: string;
     status: string;
     note?: string;
+    children?: Array<Task>;
   };
 }
 
 export interface CreateTaskPayload {
+  parent_id?: integer;
   name: string;
   label: string;
   priority: string;
@@ -54,6 +57,7 @@ export interface UpdateTaskPayload extends CreateTaskPayload {
 }
 
 export interface TaskRowData {
+  id?: integer;
   name: string;
   label: string;
   priority: string;

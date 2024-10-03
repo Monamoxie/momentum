@@ -24,7 +24,8 @@ class TaskResource extends JsonResource
             "label" => $this->label,
             "priority" => $this->priority,
             "status" => $this->status,
-            "note" => $this->note
+            "note" => $this->note,
+            'children' => TaskResource::collection($this->children)
         ];
     }
 }

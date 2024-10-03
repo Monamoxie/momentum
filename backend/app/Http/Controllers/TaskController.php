@@ -17,7 +17,7 @@ class TaskController extends Controller
 
     public function index(Request $request, TaskService $taskService)
     {
-        $tasks = $taskService->getTasks($request->user);
+        $tasks = $taskService->getTasks(auth()->user());
 
         return $this->successResponse(message: "Data returned successfully", data: [
             "tasks" => (new TaskCollection($tasks))->toArray($request),
@@ -26,9 +26,17 @@ class TaskController extends Controller
         ]);
     }
 
+    public function show(Request $request, Task $task, TaskService $taskService)
+    {
+        return $this->successResponse(message: "Task retrieved successfully", data: [
+            'task' => new TaskResource($task)
+        ]);
+    }
+
     public function store(CreateTaskRequest $request, TaskService $taskService)
     {
         $task = $taskService->createTask(
+            parent_id: $request->parent_id,
             name: $request->name,
             user_id: auth()->user()->id,
             label: $request->label,

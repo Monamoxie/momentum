@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Exception;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -15,7 +16,6 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        Config::set('app.env', 'testing');
 
         if (config('app.env') !== 'testing') {
             throw new Exception('This should only be triggered in a testing environment');

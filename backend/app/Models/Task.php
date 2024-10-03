@@ -9,6 +9,8 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $with = ['children'];
+
     protected $fillable = ['name', 'label', 'priority', 'parent_id'];
 
     public function parent()
