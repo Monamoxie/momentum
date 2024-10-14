@@ -1,6 +1,6 @@
 # MOMENTUM
 
- Task management platform, with ability to create an unlimited number of sub tasks.
+Create unlimited number of parent-child relationships on an entity.
 
 ## Tech Stack
 -  Docker
