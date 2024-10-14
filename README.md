@@ -10,6 +10,12 @@
 - MySQL
 - Vue 3
 
+<p align="center">
+<img src="frontend/src/assets/snapshots/momentum_2.png">
+ <img src="frontend/src/assets/snapshots/momentum_3.png">
+ <img src="frontend/src/assets/snapshots/momentum_test.png">
+ </p>
+
 ## Installation
 - Unzip project code or clone from repo
 - CD into root directory
